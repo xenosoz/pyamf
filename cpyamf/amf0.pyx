@@ -441,6 +441,9 @@ cdef class Encoder(codec.Encoder):
         if PyUnicode_CheckExact(u):
             u = self.context.getBytesForString(u)
 
+        if not PyString_CheckExact(u):
+            raise TypeError('Expected str or unicode')
+
         cdef Py_ssize_t l = PyString_GET_SIZE(u)
 
         if l > 0xffff:
@@ -501,7 +504,12 @@ cdef class Encoder(codec.Encoder):
             if PyInt_Check(key) or PyLong_Check(key):
                 key = str(key)
 
-            self.serialiseString(key)
+            try:
+                self.serialiseString(<object>key)
+            except TypeError:
+                raise TypeError('Expected a unicode or str dict key, but '
+                    'received %r' % (<object>key,))
+
             self.writeElement(value)
 
         return 0

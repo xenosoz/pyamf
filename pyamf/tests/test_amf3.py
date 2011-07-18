@@ -548,6 +548,21 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
         self.assertEqual(self.encoder.next(), '\t\x05\x01\x04\x01\x04\x02')
 
 
+    def test_complex_dict_key(self):
+        """
+        Dict keys that are not strings should report a meaningful error.
+        """
+        d = {
+            (1, 2, 3): 'foobar'
+        }
+
+        with self.assertRaises(TypeError) as cm:
+            self.encode(d)
+
+        self.assertEqual(str(cm.exception),
+            'Expected a unicode or str dict key, but received (1, 2, 3)')
+
+
 class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
     """
     Tests the output from the AMF3 L{Decoder<pyamf.amf3.Decoder>} class.

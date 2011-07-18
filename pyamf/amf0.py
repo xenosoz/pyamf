@@ -472,8 +472,12 @@ class Encoder(codec.Encoder):
         """
         Similar to L{writeString} but does not encode a type byte.
         """
-        if type(s) is unicode:
+        t = type(s)
+
+        if t is unicode:
             s = self.context.getBytesForString(s)
+        elif t is not str:
+            raise TypeError('Expected str or unicode')
 
         l = len(s)
 
@@ -536,7 +540,12 @@ class Encoder(codec.Encoder):
             if type(key) in python.int_types:
                 key = str(key)
 
-            self.serialiseString(key)
+            try:
+                self.serialiseString(key)
+            except TypeError:
+                raise TypeError('Expected a unicode or str dict key, but '
+                    'received %r' % (key,))
+
             self.writeElement(val)
 
     def writeMixedArray(self, o):

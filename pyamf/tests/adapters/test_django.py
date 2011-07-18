@@ -92,6 +92,9 @@ def setUpModule():
 
 
 def tearDownModule():
+    if not teardown_test_environment:
+        return
+
     # remove all the stuff that django installed
     teardown_test_environment()
 

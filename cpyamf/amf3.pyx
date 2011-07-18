@@ -782,7 +782,12 @@ cdef class Encoder(codec.Encoder):
             if PyInt_Check(key) or PyLong_Check(key):
                 key = str(key)
 
-            self.serialiseString(key)
+            try:
+                self.serialiseString(key)
+            except TypeError:
+                raise TypeError('Expected a unicode or str dict key, but '
+                    'received %r' % (key,))
+
             self.writeElement(value)
 
         return self.stream.write(&REF_CHAR, 1)
@@ -839,7 +844,12 @@ cdef class Encoder(codec.Encoder):
         _encode_integer(self.stream, len(int_keys) << 1 | REFERENCE_BIT)
 
         for x in str_keys:
-            self.serialiseString(x)
+            try:
+                self.serialiseString(x)
+            except TypeError:
+                raise TypeError('Expected a unicode or str dict key, but '
+                    'received %r' % (x,))
+
             self.writeElement(n[x])
 
         self.stream.write_uchar(0x01)
@@ -934,7 +944,11 @@ cdef class Encoder(codec.Encoder):
             value = NULL
 
             while PyDict_Next(attrs, &ref, &key, &value):
-                self.serialiseString(<object>key)
+                try:
+                    self.serialiseString(<object>key)
+                except TypeError:
+                    raise TypeError('Expected a unicode or str dict key, but '
+                        'received %r' % (<object>key,))
                 self.writeElement(<object>value)
 
             self.stream.write(&REF_CHAR, 1)

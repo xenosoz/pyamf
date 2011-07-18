@@ -1217,8 +1217,12 @@ class Encoder(codec.Encoder):
         @type   s: C{str}
         @param  s: The string data to be encoded to the AMF3 data stream.
         """
-        if type(s) is unicode:
+        t = type(s)
+
+        if t is unicode:
             s = self.context.getBytesForString(s)
+        elif t is not str:
+            raise TypeError('Expected str or unicode')
 
         self.serialiseBytes(s)
 
@@ -1361,7 +1365,12 @@ class Encoder(codec.Encoder):
         self._writeInteger(len(int_keys) << 1 | REFERENCE_BIT)
 
         for x in str_keys:
-            self.serialiseString(x)
+            try:
+                self.serialiseString(x)
+            except TypeError:
+                raise TypeError('Expected a unicode or str dict key, but '
+                    'received %r' % (x,))
+
             self.writeElement(n[x])
 
         self.stream.write_uchar(0x01)
@@ -1465,7 +1474,12 @@ class Encoder(codec.Encoder):
                     if type(attr) in python.int_types:
                         attr = str(attr)
 
-                    self.serialiseString(attr)
+                    try:
+                        self.serialiseString(attr)
+                    except TypeError:
+                        raise TypeError('Expected a unicode or str dict key, but '
+                            'received %r' % (attr,))
+
                     self.writeElement(value)
 
             self.stream.write('\x01')

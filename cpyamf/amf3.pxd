@@ -57,7 +57,7 @@ cdef class Decoder(codec.Decoder):
     cdef object readXML(self)
     cdef object readByteArray(self)
     cdef object readProxy(self, obj)
-    cdef object readConcreteObject(self, char t)
+    cdef object readConcreteElement(self, char t)
 
 
 cdef class Encoder(codec.Encoder):

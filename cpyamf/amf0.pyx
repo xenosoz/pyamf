@@ -582,7 +582,7 @@ cdef class Encoder(codec.Encoder):
         self.writeType(TYPE_AMF3)
         self.amf3_encoder.writeElement(o)
 
-    cdef inline int handleBasicTypes(self, object element, object py_type) except -1:
+    cdef int handleBasicTypes(self, object element, object py_type) except -1:
         if self.use_amf3:
             return self.writeAMF3(element)
 
